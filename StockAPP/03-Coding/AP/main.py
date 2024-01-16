@@ -115,7 +115,7 @@ def handle_message(event):
 # 主程式持續運行
 # ----------------------
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run()
 '''    while True:
         schedule.run_pending()
         time.sleep(1)'''
