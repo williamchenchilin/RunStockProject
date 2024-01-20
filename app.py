@@ -74,6 +74,7 @@ INS_CNT = 0                     # 新增資料筆數
 UPD_CNT = 0                     # 更新資料筆數
 DEL_CNT = 0                     # 刪除資料筆數
 # OUT 回傳值
+PARAM = ''
 PARAM = PARAM if PARAM is not None else ''
 # ----------------------
 # 程式開始
