@@ -13,7 +13,11 @@
 # ----------------------
 # 載入程式必要工具
 # ----------------------
-from inspect import getfullargspec as getargspec
+import inspect
+
+if not hasattr(inspect, 'getargspec'):
+    inspect.getargspec = inspect.getfullargspec
+
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
