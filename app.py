@@ -16,7 +16,7 @@
 import inspect
 if not hasattr(inspect, 'getargspec'):
     inspect.getargspec = inspect.getfullargspec
-    
+
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -106,13 +106,13 @@ def handle_message(event):
 
     # 根據不同的使用者進行回覆
     if source_type == "user":
-        reply_text = f"這是來自使用者 {user_id} 的訊息: {message_text}"
+        reply_text = f"這是來自使用者 {user_id} 的訊息: {message_text},訊息編號為{event.reply_token}"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
     elif source_type == "group":
-        reply_text = f"這是來自群組 {user_id} 的訊息: {message_text}"
+        reply_text = f"這是來自群組 {user_id} 的訊息: {message_text},訊息編號為{event.reply_token}"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
     elif source_type == "room":
-        reply_text = f"這是來自聊天室 {user_id} 的訊息: {message_text}"
+        reply_text = f"這是來自聊天室 {user_id} 的訊息: {message_text},訊息編號為{event.reply_token}"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
 
