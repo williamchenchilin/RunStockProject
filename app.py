@@ -124,13 +124,13 @@ def handle_message(event):
                 html = f'<span class="C($c-icon) Fz(24px) Mend(20px)">{message_text}</span>'
                 soup = BeautifulSoup(html, 'html.parser')
                 selected_span = soup.select_one('.C($c-icon) Fz(24px) Mend(20px) span')
-                if selected_span == message_text:
+                if selected_span == str(message_text):
                     reply_text = f"{int_message_text},\n代號網址：{web_site}"
                 else:
                     reply_text = f"找不到代碼：{message_text}的股票"
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
         else:
-            reply_text = f" {user_name} 好, 請輸入想查詢的股票代號"
+            reply_text = f" {user_name}好,請輸入想查詢的股票代號~"
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 '''    elif source_type == "group":
         reply_text = f"這是來自群組 {user_id} 的訊息: {message_text},訊息編號為{event.reply_token}"
