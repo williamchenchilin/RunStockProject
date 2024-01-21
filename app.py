@@ -117,14 +117,15 @@ def handle_message(event):
     # 根據不同的使用者進行回覆
     if source_type == "user":
         if message_text.isdigit(): #若回覆為數字
-            int_message_text = f" {user_name} 好, 您要查詢的股票代號為{message_text}"
+            int_message_text = f"HI,{user_name}! 您要查詢的股票代號為{message_text}"
             web_site = f"https://tw.stock.yahoo.com/quote/{message_text}.TW"
             response = requests.get(web_site)
             if response.status_code == 200:
-                html = f'<span class="C($c-icon) Fz(24px) Mend(20px)">{message_text}</span>'
+                html = response.text
                 soup = BeautifulSoup(html, 'html.parser')
-                selected_span = soup.select_one('.C\\($c-icon\\) + span')
-                if selected_span == str(message_text):
+                selected_span = soup.find_all('span', {'class' : 'C($c-icon) Fz(24px) Mend(20px)'})
+                span = [span.get_text() for span in selected_span]
+                if str(span) == "['"+str(message_text)+"']":
                     reply_text = f"{int_message_text},\n代號網址：{web_site}"
                 else:
                     reply_text = f"找不到代碼：{message_text}的股票"
