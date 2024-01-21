@@ -123,7 +123,7 @@ def handle_message(event):
             if response.status_code == 200:
                 html = f'<span class="C($c-icon) Fz(24px) Mend(20px)">{message_text}</span>'
                 soup = BeautifulSoup(html, 'html.parser')
-                selected_span = soup.select_one('.C\\($c-icon\\) Fz(24px) Mend(20px) span')
+                selected_span = soup.select_one(".C($c-icon) Fz(24px) Mend(20px) span")
                 if selected_span == str(message_text):
                     reply_text = f"{int_message_text},\n代號網址：{web_site}"
                 else:
