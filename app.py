@@ -108,9 +108,11 @@ def callback():
 def handle_message(event):
     # 獲取使用者相關資訊
     user_id      = event.source.user_id
-    user_name    = event.source.user_name
     source_type  = event.source.type
     message_text = event.message.text
+    #獲取profile資料
+    user_profile = line_bot_api.get_profile(user_id)
+    user_name = user_profile.display_name
 
     # 根據不同的使用者進行回覆
     if source_type == "user":
