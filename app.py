@@ -79,6 +79,11 @@ PARAM = PARAM if PARAM is not None else ''
 # ----------------------
 # 程式開始
 # ----------------------
+# Health Check Path
+@app.route('/health', methods=['GET'])
+def health_check():
+    return 'OK', 200
+    
 @app.route("/callback", methods=['POST'])
 def callback():
     # 取得 Line 訊息的 X-Line-Signature Header
