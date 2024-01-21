@@ -22,6 +22,8 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, StickerSendMessage, ImageSendMessage, LocationSendMessage
 from datetime import datetime
+import requests
+from bs4 import BeautifulSoup
 
 #import pyodbc
 #import schedule
@@ -83,7 +85,7 @@ PARAM = PARAM if PARAM is not None else ''
 @app.route('/health', methods=['GET'])
 def health_check():
     return 'OK', 200
-    
+
 @app.route("/callback", methods=['POST'])
 def callback():
     # 取得 Line 訊息的 X-Line-Signature Header
@@ -105,21 +107,36 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     # 獲取使用者相關資訊
-    user_id = event.source.user_id
-    source_type = event.source.type
+    user_id      = event.source.user_id
+    user_name    = event.source.user_name
+    source_type  = event.source.type
     message_text = event.message.text
 
     # 根據不同的使用者進行回覆
     if source_type == "user":
-        reply_text = f"這是來自使用者 {user_id} 的訊息: {message_text},訊息編號為{event.reply_token}"
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
-    elif source_type == "group":
+        if type(message_text) == int:
+            int_message_text = f" {user_name} 好, 您要查詢的股票代號為{message_text}"
+            web_site = f"https://tw.stock.yahoo.com/quote/{message_text}.TW"
+            response = requests.get(web_site)
+            if response.status_code == 200:
+                html = f'<span class="C($c-icon) Fz(24px) Mend(20px)">{message_text}</span>'
+                soup = BeautifulSoup(html, 'html.parser')
+                selected_span = soup.select_one('.C($c-icon) Fz(24px) Mend(20px) span')
+                if selected_span == message_text:
+                    reply_text = f"{int_message_text},\n代號網址：{web_site}"
+                else:
+                    reply_text = f"找不到代碼：{message_text}的股票"
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        else:
+            reply_text = f" {user_name} 好, 請輸入想查詢的股票代號"
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+'''    elif source_type == "group":
         reply_text = f"這是來自群組 {user_id} 的訊息: {message_text},訊息編號為{event.reply_token}"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
     elif source_type == "room":
         reply_text = f"這是來自聊天室 {user_id} 的訊息: {message_text},訊息編號為{event.reply_token}"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
-
+'''
 
 # ----------------------
 # 主程式持續運行
