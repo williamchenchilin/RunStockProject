@@ -160,3 +160,4 @@ if __name__ == "__main__":
 '''    while True:
         schedule.run_pending()
         time.sleep(1)'''
+#https://ithelp.ithome.com.tw/articles/10331859?sc=rss.iron製作文字模組
