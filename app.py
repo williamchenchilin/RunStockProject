@@ -121,25 +121,28 @@ def handle_message(event):
 
     # 根據不同的使用者進行回覆
     if source_type == "user":
-        if message_text.isdigit(): #若回覆為數字
+        #若回覆為數字
+        if message_text.isdigit(): 
             int_message_text = f"HI,{user_name}! 您要查詢的股票代號為{message_text}"
             web_site = f"https://tw.stock.yahoo.com/quote/{message_text}.TW"
             response = requests.get(web_site)
+            #若回覆為數字且正確解讀
             if response.status_code == 200:
                 html = response.text
                 soup = BeautifulSoup(html, 'html.parser')
                 selected_span = soup.find_all('span', {'class' : 'C($c-icon) Fz(24px) Mend(20px)'})
                 span = [span.get_text() for span in selected_span]
                 compare_stock = "['"+str(message_text)+"']"
+                #正確股票資訊
                 if str(span) == compare_stock:
                     reply_text = f"{int_message_text},\n代號網址：{web_site}"
                 else:
-                    reply_text = f"找不到代碼：{message_text}的股票"
+                    reply_text = f"找不到代碼：「{message_text}」的股票"
             else:
                 reply_text = f"找不到代碼：{message_text}的股票"
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
         else:
-            reply_text = f"{user_name}好,{message_text}不是股票代號,請輸入正確代號~"
+            reply_text = f"{user_name}好,「{message_text}」不是股票代號,請輸入正確代號~"
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 '''    elif source_type == "group":
         reply_text = f"這是來自群組 {user_id} 的訊息: {message_text},訊息編號為{event.reply_token}"
