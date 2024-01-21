@@ -24,6 +24,7 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage, StickerSe
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
+from flask import render_template
 
 #import pyodbc
 #import schedule
@@ -86,6 +87,10 @@ PARAM = PARAM if PARAM is not None else ''
 def health_check():
     return 'OK', 200
 
+@app.route("/")
+def home():
+    return render_template("home.html")
+
 @app.route("/callback", methods=['POST'])
 def callback():
     # 取得 Line 訊息的 X-Line-Signature Header
@@ -125,13 +130,16 @@ def handle_message(event):
                 soup = BeautifulSoup(html, 'html.parser')
                 selected_span = soup.find_all('span', {'class' : 'C($c-icon) Fz(24px) Mend(20px)'})
                 span = [span.get_text() for span in selected_span]
-                if str(span) == "['"+str(message_text)+"']":
+                compare_stock = "['"+str(message_text)+"']"
+                if str(span) == compare_stock:
                     reply_text = f"{int_message_text},\n代號網址：{web_site}"
                 else:
                     reply_text = f"找不到代碼：{message_text}的股票"
+            else:
+                reply_text = f"找不到代碼：{message_text}的股票"
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
         else:
-            reply_text = f"{user_name}好,請輸入想查詢的股票代號~"
+            reply_text = f"{user_name}好,{message_text}不是股票代號,請輸入正確代號~"
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 '''    elif source_type == "group":
         reply_text = f"這是來自群組 {user_id} 的訊息: {message_text},訊息編號為{event.reply_token}"
