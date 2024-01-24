@@ -82,6 +82,7 @@ PARAM = PARAM if PARAM is not None else ''
 # ----------------------
 # 程式開始
 # ----------------------
+'''
 # Health Check Path
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -89,7 +90,25 @@ def health_check():
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template("home.html")'''
+@app.route('/ping')
+def ping():
+    return jsonify({"status":"alive"}), 200
+
+def keep_alive():
+    try:
+        response = requests.get(
+            'https://stock-linebot.onrender.com/ping')
+        if respond.status_code == 200:
+            print("Keep-Alive request sent seccessfully.")
+        else:
+            print("Keep-Alive request sent faild.")
+    except Exception as e:
+        print(f"Error during Keep-Alive request:{e}")
+
+schedueler = BackgroundScheduler()
+scheduler.add_job(func=keep_alive, trigger="interval",munites = 13)
+scheduler.stare()
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -160,4 +179,4 @@ if __name__ == "__main__":
 '''    while True:
         schedule.run_pending()
         time.sleep(1)'''
-#https://ithelp.ithome.com.tw/articles/10331859?sc=rss.iron製作文字模組
+#https://ithelp.ithome.com.tw/articles/10331859?sc=rss.iron製作
