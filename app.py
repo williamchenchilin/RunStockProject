@@ -108,7 +108,7 @@ def keep_alive():
     except Exception as e:
         print(f"Error during Keep-Alive request:{e}")
 
-schedueler = BackgroundScheduler()
+scheduler = BackgroundScheduler()
 scheduler.add_job(func=keep_alive, trigger="interval",munites = 13)
 scheduler.stare()
 
