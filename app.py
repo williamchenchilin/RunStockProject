@@ -109,8 +109,8 @@ def keep_alive():
         print(f"Error during Keep-Alive request:{e}")
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=keep_alive, trigger="interval",munites = 13)
-scheduler.stare()
+scheduler.add_job(func = keep_alive, trigger = "interval", minutes = 13)
+scheduler.start()
 
 @app.route("/callback", methods=['POST'])
 def callback():
