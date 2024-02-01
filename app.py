@@ -19,6 +19,7 @@ if not hasattr(inspect, 'getargspec'):
   #A.FLASK環境
 from flask import Flask, request, abort
 from flask import render_template
+from flask import Flask, jsonify
   #B.Line
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -33,7 +34,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
   #E.SQL連結
 import psycopg2
-
+import os
 #2.引入副程式
   #A.Line自動回覆
 from message import handle_text_message  
@@ -74,11 +75,11 @@ line_bot_api = LineBotApi(CAT)
 handler = WebhookHandler(CS)
 #2.資料庫設定
 conn = psycopg2.connect(
-    dbname=os.environ.get("POSTGRES_DB"),
-    user=os.environ.get("POSTGRES_USER"),
-    password=os.environ.get("POSTGRES_PASS"),
-    host=os.environ.get("POSTGRES_HOST"),
-    port=os.environ.get("POSTGRES_PORT")
+    dbname=os.environ.get("Runstock_Sql"),
+    user=os.environ.get("william"),
+    password=os.environ.get("OksYLIKWCizAXTr5nPG0g0DLddNMu8ql"),
+    host=os.environ.get("dpg-cmm7880l5elc73ca9p50-a"),
+    port=os.environ.get("5432")
 )
 #3.股票整檔資訊來源
 Upd_Stock_Url = "https://tw.stock.yahoo.com/h/kimosel.php?tse=1&cat=ETF&form=menu&form_id=stock_id&form_name=stock_name&domain=0"
