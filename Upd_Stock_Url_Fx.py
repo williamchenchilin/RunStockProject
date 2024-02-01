@@ -20,6 +20,7 @@ from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from urllib.parse import urljoin
+from flask import Flask, jsonify
 
 
 #import pyodbc
@@ -105,7 +106,7 @@ def Upd_Stock_Url_Fx(Url):
          print(Reply_Message)
 
 
-    DATABASE_URL = os.environ.get('postgres://william:OksYLIKWCizAXTr5nPG0g0DLddNMu8ql@dpg-cmm7880l5elc73ca9p50-a.singapore-postgres.render.com/runstock')
+    DATABASE_URL = os.environ.get('postgres://william:OksYLIKWCizAXTr5nPG0g0DLddNMu8ql@dpg-cmm7880l5elc73ca9p50-a/runstock')
 
     if DATABASE_URL is None:
         print("DATABASE_URL environment variable is not set")
