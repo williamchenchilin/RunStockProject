@@ -21,6 +21,7 @@ from flask import Flask, request, abort
 from flask import render_template
 from flask import jsonify
 from flask import redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 
   #B.Line
 from linebot import LineBotApi, WebhookHandler
@@ -35,7 +36,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
   #E.SQL連結
-require('dotenv').config();
+from dotenv import load_dotenv
 import psycopg2
 import os
 from .extensions import db
@@ -53,7 +54,7 @@ from message import handle_text_message
 # 設定程式運行
 # ----------------------
 app = Flask(__name__)
-
+load_dotenv()
 # ----------------------
 # 搭配 SQL 功能變數設定
 # ----------------------
@@ -79,7 +80,8 @@ CS='c9031d7e26c12cf1388a8664bedfdf79'
 line_bot_api = LineBotApi(CAT)
 handler = WebhookHandler(CS)
 #2.資料庫設定
-app.cofig["SQLALCHEMY_DATABASE_URI"]='postgres://william:OksYLIKWCizAXTr5nPG0g0DLddNMu8ql@dpg-cmm7880l5elc73ca9p50-a/runstock'
+app.cofig["SQLALCHEMY_DATABASE_URI"]=os.environ.get("DATABASE_URL")
+#postgres://william:OksYLIKWCizAXTr5nPG0g0DLddNMu8ql@dpg-cmm7880l5elc73ca9p50-a.singapore-postgres.render.com/runstock
 db.init_app(app)
 app.register_blueprint(main)
 
