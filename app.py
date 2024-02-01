@@ -12,20 +12,30 @@
 # ----------------------
 # 載入程式必要工具
 # ----------------------
+#1.外部工具載入
 import inspect
 if not hasattr(inspect, 'getargspec'):
     inspect.getargspec = inspect.getfullargspec
-
+  #A.FLASK環境
 from flask import Flask, request, abort
+from flask import render_template
+  #B.Line
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, StickerSendMessage, ImageSendMessage, LocationSendMessage
 from datetime import datetime
+  #C.爬網
 import requests
 from bs4 import BeautifulSoup
-from flask import render_template
+  #D.排程
 from apscheduler.schedulers.background import BackgroundScheduler
-# 引入副程式
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+  #E.SQL連結
+import psycopg2
+
+#2.引入副程式
+  #A.Line自動回覆
 from message import handle_text_message  
 
 
@@ -57,10 +67,22 @@ DEL_CNT = 0                          # 刪除資料筆數
 ErrorMessage = ''       # 錯誤訊息
 ErrorSeverity = 0       # 錯誤嚴重程度
 ErrorState = 0          # 錯誤狀態
+#1.Line設定
 CAT = 'NKbDp9O6/M2EMnRFcOJcZjZfByb+7cPd3E1YPVm2BycjQ/yUhtyPEVDR9U3khmiFkeY7LhssAN+ucYQCczEye+7Fu+80dB+waO2DgxQO41I52NfooWS7UUKcsPmcnY6hYfkbvv1Q1YCI8+QUPKiyPgdB04t89/1O/w1cDnyilFU='
 CS='c9031d7e26c12cf1388a8664bedfdf79'
 line_bot_api = LineBotApi(CAT)
 handler = WebhookHandler(CS)
+#2.資料庫設定
+conn = psycopg2.connect(
+    dbname=os.environ.get("POSTGRES_DB"),
+    user=os.environ.get("POSTGRES_USER"),
+    password=os.environ.get("POSTGRES_PASS"),
+    host=os.environ.get("POSTGRES_HOST"),
+    port=os.environ.get("POSTGRES_PORT")
+)
+#3.股票整檔資訊來源
+Upd_Stock_Url = "https://tw.stock.yahoo.com/h/kimosel.php?tse=1&cat=ETF&form=menu&form_id=stock_id&form_name=stock_name&domain=0"
+
 
 # ------------------------------
 # 設定必輸入變數
@@ -85,45 +107,42 @@ PARAM = PARAM if PARAM is not None else ''
 # ----------------------
 # 程式開始
 # ----------------------
-'''
-# Health Check Path
-@app.route('/health', methods=['GET'])
-def health_check():
-    return 'OK', 200
-
-@app.route("/")
-def home():
-    return render_template("home.html")'''
+#1.設定定時在Render自動啟動,製造不間斷狀態
 @app.route('/ping')
 def ping():
     return jsonify({"status":"alive"}), 200
-
 def keep_alive():
     try:
         response = requests.get(
             'https://stock-linebot.onrender.com/ping')
-        if respond.status_code == 200:
+        if response.status_code == 200:
             print("Keep-Alive request sent seccessfully.")
         else:
             print("Keep-Alive request sent faild.")
     except Exception as e:
         print(f"Error during Keep-Alive request:{e}")
-
 scheduler = BackgroundScheduler()
 scheduler.add_job(func = keep_alive, trigger = "interval", minutes = 13)
 scheduler.start()
 
+#2.設定PostgreSQL整檔資料
+    #A.定時每天早上爬股票資料名稱(用於更新)
+Sql_scheduler = BackgroundScheduler()
+
+Sql_scheduler.add_job(func=Upd_Stock_Url_Fx, trigger='cron', hour=8, minute=0,args=(Upd_Stock_Url))  # 每天早上 8:00 執行一次
+Sql_scheduler.start()
+    #B.股票資料資訊更新程式開始
+
+
+#3.Line還沒決定要做甚麼
 @app.route("/callback", methods=['POST'])
 def callback():
-    # 取得 Line 訊息的 X-Line-Signature Header
+    #A.取得 Line 訊息的 X-Line-Signature Header
     signature = request.headers['X-Line-Signature']
-
-    # 取得 POST 資料
+    #B.取得 POST 資料
     body = request.get_data(as_text=True)
-
-    # 記錄 LINE 的事件
+    #C.記錄 LINE 的事件
     app.logger.info("Request body: " + body)
-
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
@@ -131,29 +150,24 @@ def callback():
 
     return 'OK'
 
+#4.訊息回覆機制設定
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    # 獲取使用者相關資訊
+    #A.獲取使用者相關資訊
     user_id      = event.source.user_id
     source_type  = event.source.type
     message_text = event.message.text
-    #獲取profile資料
+    #B.獲取profile資料
     user_profile = line_bot_api.get_profile(user_id)
     user_name = user_profile.display_name
 
-    # 根據不同的使用者進行回覆
+    #C.根據不同的使用者進行回覆
     if source_type == "user":
         reply_message = handle_text_message(line_bot_api, event, message_text, user_name)
+        
         line_bot_api.reply_message(event.reply_token, reply_message)
  
-'''    elif source_type == "group":
-        reply_text = f"這是來自群組 {user_id} 的訊息: {message_text},訊息編號為{event.reply_token}"
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
-    elif source_type == "room":
-        reply_text = f"這是來自聊天室 {user_id} 的訊息: {message_text},訊息編號為{event.reply_token}"
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
-'''
-
+ 
 # ----------------------
 # 主程式持續運行
 # ----------------------
