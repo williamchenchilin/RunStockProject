@@ -19,7 +19,9 @@ if not hasattr(inspect, 'getargspec'):
   #A.FLASK環境
 from flask import Flask, request, abort
 from flask import render_template
-from flask import Flask, jsonify
+from flask import jsonify
+from flask import redirect, url_for
+
   #B.Line
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -33,8 +35,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
   #E.SQL連結
+require('dotenv').config();
 import psycopg2
 import os
+from .extensions import db
+from .routes import main
 #2.引入副程式
   #A.Line自動回覆
 from message import handle_text_message  
@@ -74,13 +79,10 @@ CS='c9031d7e26c12cf1388a8664bedfdf79'
 line_bot_api = LineBotApi(CAT)
 handler = WebhookHandler(CS)
 #2.資料庫設定
-conn = psycopg2.connect(
-    dbname=os.environ.get("Runstock_Sql"),
-    user=os.environ.get("william"),
-    password=os.environ.get("OksYLIKWCizAXTr5nPG0g0DLddNMu8ql"),
-    host=os.environ.get("dpg-cmm7880l5elc73ca9p50-a"),
-    port=os.environ.get("5432")
-)
+app.cofig["SQLALCHEMY_DATABASE_URI"]='postgres://william:OksYLIKWCizAXTr5nPG0g0DLddNMu8ql@dpg-cmm7880l5elc73ca9p50-a/runstock'
+db.init_app(app)
+app.register_blueprint(main)
+
 #3.股票整檔資訊來源
 Upd_Stock_Url = "https://tw.stock.yahoo.com/h/kimosel.php?tse=1&cat=ETF&form=menu&form_id=stock_id&form_name=stock_name&domain=0"
 
@@ -127,12 +129,29 @@ scheduler.add_job(func = keep_alive, trigger = "interval", minutes = 13)
 scheduler.start()
 
 #2.設定PostgreSQL整檔資料
-    #A.定時每天早上爬股票資料名稱(用於更新)
+  #使用者加入資料庫
+main = Blurprint(main,__name__)
+@main.route('/')
+def index():
+    users = User.query.all()
+    users_list_html = [f"<li>{ user.username }</li>"for user in users]
+    return f"<ul>{''.join(users_list_html)}</ul>"
+  #資料庫中的使用者
+@main.route('add/<username>')
+def add_user(username):
+    db.session.add(User(username=username))
+    db.session.commit()
+    return redirect(url_for("main.index"))
+
+
+#2-A.定時每天早上爬股票資料名稱(用於更新)
+'''
 Sql_scheduler = BackgroundScheduler()
 
 Sql_scheduler.add_job(func=Upd_Stock_Url_Fx, trigger='cron', hour=8, minute=0,args=(Upd_Stock_Url))  # 每天早上 8:00 執行一次
 Sql_scheduler.start()
     #B.股票資料資訊更新程式開始
+    '''
 
 
 #3.Line還沒決定要做甚麼
