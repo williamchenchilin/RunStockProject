@@ -79,7 +79,7 @@ CS='c9031d7e26c12cf1388a8664bedfdf79'
 line_bot_api = LineBotApi(CAT)
 handler = WebhookHandler(CS)
 #2.資料庫設定
-app.cofig["SQLALCHEMY_DATABASE_URI"]=os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"]=os.environ.get("DATABASE_URL")
 #postgres://william:OksYLIKWCizAXTr5nPG0g0DLddNMu8ql@dpg-cmm7880l5elc73ca9p50-a.singapore-postgres.render.com/runstock
 db.init_app(app)
 app.register_blueprint(main)
