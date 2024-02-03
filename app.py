@@ -21,7 +21,6 @@ from flask import Flask, request, abort
 from flask import render_template
 from flask import jsonify
 from flask import redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
 
   #B.Line
 from linebot import LineBotApi, WebhookHandler
@@ -39,8 +38,8 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import psycopg2
 import os
-from .extensions import db
-from .routes import main
+from flask_sqlalchemy import SQLAlchemy
+
 #2.引入副程式
   #A.Line自動回覆
 from message import handle_text_message  
