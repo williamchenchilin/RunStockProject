@@ -38,7 +38,7 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import psycopg2
 import os
-from flask_sqlalchemy import SQLAlchemy
+from .models import db
 
 #2.引入副程式
   #A.Line自動回覆
